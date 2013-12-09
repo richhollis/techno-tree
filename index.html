@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!-- 
+  Instagram voice search projection mapping by @polyphant and @richhollis 
+  For the #musichackday #technotree, #london - Sat 7th-Sun 8th December 2013
+-->
+<html>
+  <head>
+    <title>Techno Tree: All I Want For Christmas</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.cycle2/20130801/jquery.cycle2.min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.transit/0.9.9/jquery.transit.min.js"></script>
+    <script src="http://malsup.github.io/jquery.cycle2.shuffle.js"></script>
+    <script src="http://malsup.github.io/jquery.cycle2.tile.js"></script>
+    <script src="http://malsup.github.io/jquery.cycle2.flip.js"></script>
+    <style>
+      .show { display: inline-block; }
+      .show img { width:195px; margin-top:200px; }
+      BODY { background: black; color: white; }
+    </style>
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+  </head>
+<body>
+
+  <div>Current phrase: <span id="current_phrase">None</span></div>
+  <div>Current request: <span id="current_request">None</span></div>
+  <ul>
+    <li>Ensure you've been good this year;</li>
+    <li>Enable your microphone;</li>
+    <li>and then simple say: <b>"All I Want For Christmas Is ___________"</b></li>
+  </ul>
+
+  <script>
+  (function(){
+    var CLIENT_ID = "f2dcda1198a44c0f90b11cf02a9a7928";
+    var KEYWORD = "christmas is";
+    var IMAGES_PER_SHOW = 5;
+    var MAX_SLIDE_SHOWS = 4;
+
+    // start speech recognition
+    var recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-GB';
+    recognition.start();
+
+    // set some pictures as a default
+    getInstagramImgsByTag(CLIENT_ID, MAX_SLIDE_SHOWS, IMAGES_PER_SHOW, 'christmas');
+
+    // speech recognition event callback
+    // when we get a phrase back - either during speech or when speech has finised (final)
+    recognition.onresult = function(event) {
+      for (var i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          // the final text
+          console.log("final transcript:", event.results[i][0].transcript);
+          doPhrase(KEYWORD, event.results[i][0].transcript);
+        } 
+        else {
+          // in-progress text/speech
+          doPhrase(KEYWORD, event.results[i][0].transcript);
+          console.log("non final transcript:", event.results[i][0].transcript);
+        }
+      }
+    }
+
+    // work out if this is a "all i want for christmas" phrase
+    // and if it is then show some pictures
+    function doPhrase(keyword, phrase) {
+      current_phrase.innerText = phrase;
+      var offset = phrase.toLowerCase().indexOf (keyword);
+      if(offset == -1) {
+        current_request.innerText = "BAD";
+        return;
+      }
+      newPhrase = phrase.substring(offset + keyword.length);
+      current_request.innerText = "OK - " + newPhrase;
+      getInstagramImgsByTag(CLIENT_ID, MAX_SLIDE_SHOWS, IMAGES_PER_SHOW, sanitize(newPhrase));
+    }  
+
+    // remove characters that upset the instagram api call
+    function sanitize(str) {
+      str = str.replace(/ /g, '');
+      str = str.replace(/'/, '');
+      return str;
+    }
+
+    // calls the instragram api and returns some images based on tag
+    function getInstagramImgsByTag(clientId, maxSlideShows, imagesPerShow, tags) {
+      url = "https://api.instagram.com/v1/tags/" + tags + "/media/recent?client_id=" + clientId + "&count=20";
+      $.ajax({
+        url: url,
+        dataType:'jsonp'
+      }).done(function(res) {
+        console.log("got images", res.data);
+        createImageSlideshows(maxSlideShows, imagesPerShow, res.data);
+        initCycleForSlideShows(maxSlideShows);
+        skewSlideShows(maxSlideShows);
+      });
+    }
+
+    // creates our slideshow DIVs and populates them with images
+    function createImageSlideshows(maxSlideShows, imagesPerShow, data) {
+      var show = 0;
+      var $show;
+      $.each(data, function(index) {
+        // new show?
+        if(index % imagesPerShow == 0) {
+          if(show++ == maxSlideShows) return; // exceeded max count, exit
+          removeSlideShow(show);
+          // add new slideshow
+          $("BODY").append("<div class=\"show\" id=\"show" + show + "\">");
+          $show = $("#show" + show);
+        }
+        // add image to our show
+        var img = data[index].images.standard_resolution.url;
+        console.log(img);
+        $show.append("<img src=\"" + img + "\" >");
+      });
+    }
+
+    // stops and removes an existing slideshow
+    function removeSlideShow(showId) {
+      var $show = $("#show" + showId);
+      $show.cycle("destroy");
+      $show.remove();
+    }
+
+    // initializes the Cycle JS Plugin for each slideshow 
+    // to handle the transitions in a nice way
+    function initCycleForSlideShows(maxSlideShows) {
+      for(var show = 1; show <= maxSlideShows; show++) {
+        $("#show" + show).cycle({
+          fx: _.sample(['fade','scrollHorz','flipHorz']), // random effect
+          delay: _.sample([ 500, 1000, 1500, 2000 ]), // random transition length
+          timeout: _.sample([ 1000, 1200, 1400, 1600 ]) // random delay
+        });
+      }
+    }
+
+    // uses transit jQuery plugin to hackily skews all the slideshows :)
+    function skewSlideShows(maxSlideShows) {
+      for(var show = 1; show <= maxSlideShows; show++) {
+        $("#show" + show).transition({ skewY: -2.5, skewX: -10 });
+      }
+    }
+
+    // experimental: although it works, everytime a new word is spoken 
+    // all the image positions get messed up - needs work! :)
+    //function makeDraggable(maxSlideShows) {
+      //$(selector).draggable({ addClasses: false }) 
+      //  .resizable({containment: slide1});
+    //}
+
+  })();
+  </script>
+</body>
+</html>

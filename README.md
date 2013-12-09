@@ -5,12 +5,12 @@ Instagram voice search projection mapping by @polyphant and @richhollis For the 
 
 Full ensemble #techotree team:
 
-- @sydlawrence
-- @555
-- @TomDavenport
-- @polyphant
-- @skattyadz
-- @richhollis
+- [@sydlawrence](https://twitter.com/sydlawrence)
+- [@555](https://twitter.com/555)
+- [@TomDavenport](https://twitter.com/TomDavenport)
+- [@polyphant](https://twitter.com/polyphant)
+- [@skattyadz](https://twitter.com/skattyadz)
+- [@richhollis](https://twitter.com/richhollis)
 
 ![technotree](http://distilleryimage4.s3.amazonaws.com/08679c7c603c11e382a90ad12b6d3376_6.jpg)
 ![technotree](http://distilleryimage2.s3.amazonaws.com/0f2546e6603b11e39dfb0ac1ed5599c8_6.jpg)

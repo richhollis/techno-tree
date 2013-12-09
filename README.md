@@ -9,7 +9,9 @@ Full ensemble #techotree team:
 - [@TomDavenport](https://twitter.com/TomDavenport)
 - [@polyphant](https://twitter.com/polyphant)
 - [@skattyadz](https://twitter.com/skattyadz)
+- Connor
 - [@richhollis](https://twitter.com/richhollis)
+
 
 ![technotree](http://distilleryimage4.s3.amazonaws.com/c68a9c285fff11e3a9890e59466a27ed_6.jpg)
 ![technotree](http://distilleryimage4.s3.amazonaws.com/08679c7c603c11e382a90ad12b6d3376_6.jpg)
